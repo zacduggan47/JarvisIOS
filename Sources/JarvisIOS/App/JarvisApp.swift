@@ -62,24 +62,24 @@ struct WelcomeView: View {
     @Environment(\.showOnboardingBinding) private var showOnboarding
 
     var body: some View {
-        ZStack {
-            Color.orangeBrand.opacity(0.1).ignoresSafeArea()
-            
+        ScrollView {
             VStack(spacing: 40) {
-                Spacer()
+                Spacer(minLength: 40)
                 
                 VStack(spacing: 16) {
                     Text("🦞").font(.system(size: 80))
                     Text("J A R V I S")
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .foregroundColor(.orangeBrand)
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
                 }
                 
                 Spacer()
                 
                 Button(action: { showOnboarding?.wrappedValue = true }) {
                     Text("🚀 RUN CLAW")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
@@ -87,7 +87,7 @@ struct WelcomeView: View {
                         .cornerRadius(16)
                         .shadow(color: .orangeBrand.opacity(0.4), radius: 10, x: 0, y: 5)
                 }
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 24)
 
                 if !(UserDefaults.standard.string(forKey: "userId") ?? "").isEmpty {
                     Button("Skip Onboarding") {
@@ -99,11 +99,14 @@ struct WelcomeView: View {
                 }
                 
                 Text("Made with ❤️ for you")
-                    .font(.caption).foregroundColor(.gray)
+                    .font(.caption)
+                    .foregroundColor(.gray)
                 
-                Spacer().frame(height: 40)
+                Spacer(minLength: 40)
             }
+            .padding(.horizontal)
         }
+        .safeAreaInset(edge: .bottom) { Spacer().frame(height: 12) }
     }
 }
 
@@ -161,85 +164,86 @@ struct OnboardingView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Progress
-            HStack(spacing: 8) {
-                ForEach(0..<14, id: \.self) { index in
-                    Circle()
-                        .fill(index <= currentStep ? Color.orangeBrand : Color.gray.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                }
-            }
-            .padding(.top, 20)
-            .padding(.horizontal, 24)
-            
-            Text(progressLabel)
-                .font(.caption.bold())
-                .foregroundColor(.orangeBrand)
-                .padding(.top, 8)
-            
-            Spacer()
-            
-            // Question
-            let question = currentStep < 7 
-                ? memoryQuestions[currentStep]
-                : soulQuestions[currentStep - 7]
-            
-            HStack(spacing: 8) {
-                Text(question)
-                    .font(.title2.bold())
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                Button {
-                    showWhy = true
-                } label: {
-                    Image(systemName: "questionmark.circle.fill")
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Progress
+                    HStack(spacing: 8) {
+                        ForEach(0..<14, id: \.self) { index in
+                            Circle()
+                                .fill(index <= currentStep ? Color.orangeBrand : Color.gray.opacity(0.3))
+                                .frame(width: 8, height: 8)
+                        }
+                    }
+                    .padding(.top, 20)
+                    .padding(.horizontal, 24)
+                    
+                    Text(progressLabel)
+                        .font(.caption.bold())
                         .foregroundColor(.orangeBrand)
+                        .padding(.top, 8)
+                    
+                    Spacer(minLength: 12)
+                    
+                    // Question
+                    let question = currentStep < 7
+                        ? memoryQuestions[currentStep]
+                        : soulQuestions[currentStep - 7]
+                    
+                    HStack(spacing: 8) {
+                        Text(question)
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                        Button {
+                            showWhy = true
+                        } label: {
+                            Image(systemName: "questionmark.circle.fill")
+                                .foregroundColor(.orangeBrand)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                    .id("q\(currentStep)")
+                    
+                    Spacer(minLength: 12)
+                    
+                    // Answer Input
+                    TextField("Your answer...", text: $answers[currentStep])
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal, 24)
+                        .id("a\(currentStep)")
+                    
+                    Spacer(minLength: 12)
+                    
+                    // Buttons
+                    HStack(spacing: 20) {
+                        if currentStep > 0 {
+                            Button("← Back") {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep -= 1 }
+                            }
+                            .foregroundColor(.gray)
+                        }
+                        Button("Skip") {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep = min(currentStep + 1, 13) }
+                        }
+                        .foregroundColor(.secondary)
+                        Button(currentStep < 13 ? "Next →" : "Done!") {
+                            if currentStep < 13 {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep += 1 }
+                                withAnimation { proxy.scrollTo("q\(currentStep)", anchor: .center) }
+                            } else {
+                                Task { await submitOnboarding() }
+                            }
+                        }
+                        .fontWeight(.bold)
+                        .foregroundColor(.orangeBrand)
+                    }
+                    .padding(.bottom, 40)
                 }
             }
-            .padding(.horizontal, 24)
-            .id("q\(currentStep)")
-            .transition(.opacity.combined(with: .scale))
-            
-            Spacer()
-            
-            // Answer Input
-            TextField("Your answer...", text: $answers[currentStep])
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal, 24)
-                .id("a\(currentStep)")
-                .transition(.opacity.combined(with: .scale))
-            
-            Spacer()
-            
-            // Buttons
-            HStack(spacing: 20) {
-                if currentStep > 0 {
-                    Button("← Back") {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep -= 1 }
-                    }
-                    .foregroundColor(.gray)
-                }
-
-                Button("Skip") {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep = min(currentStep + 1, 13) }
-                }
-                .foregroundColor(.secondary)
-
-                Button(currentStep < 13 ? "Next →" : "Done!") {
-                    if currentStep < 13 {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep += 1 }
-                    } else {
-                        Task { await submitOnboarding() }
-                    }
-                }
-                .fontWeight(.bold)
-                .foregroundColor(.orangeBrand)
-            }
-            .padding(.bottom, 40)
         }
         .sheet(isPresented: $showWhy) {
             WhySheetView(message: currentWhyText)
@@ -323,6 +327,7 @@ struct SkillsView: View {
     @State private var pendingSkill: SkillItem?
     @State private var connected: Set<String> = []
     @State private var showMore = false
+    @State private var showPKMSync = false
 
     private let connectedSkillsKey = "connectedSkills"
 
@@ -353,6 +358,38 @@ struct SkillsView: View {
                 LazyVStack(spacing: 16) {
                     ForEach(coreSkills) { skill in
                         skillCard(skill)
+                    }
+                    
+                    Button {
+                        showPKMSync = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "brain.head.profile")
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundColor(.orangeBrand)
+                                .frame(width: 44, height: 44)
+                                .background(Color.orangeBrand.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Connect Your Brain")
+                                    .font(.headline)
+                                Text("One-tap PKM sync: Obsidian, Notion, Readwise, Notes")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(16)
+                        .background(Color(UIColor.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 4)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.orangeBrand.opacity(0.08), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 16)
                     }
 
                     if showMore {
@@ -402,6 +439,9 @@ struct SkillsView: View {
                     showConfigure = false
                     pendingSkill = nil
                 }
+            }
+            .sheet(isPresented: $showPKMSync) {
+                PKMSyncView()
             }
         }
     }

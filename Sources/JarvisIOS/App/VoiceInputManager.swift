@@ -32,7 +32,9 @@ final class VoiceInputManager: ObservableObject {
     }
 
     func updateLocale(_ identifier: String) {
-        self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: identifier)) ?? SFSpeechRecognizer()
+        if let recognizer = SFSpeechRecognizer(locale: Locale(identifier: identifier)) {
+            self.speechRecognizer = recognizer
+        }
     }
 
     func requestPermissions() async -> Bool {
@@ -108,6 +110,7 @@ final class VoiceInputManager: ObservableObject {
         recognitionTask?.cancel()
         recognitionTask = nil
         recognitionRequest = nil
+        partialText = ""
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         if case .listening = state {
             hapticsStop.impactOccurred()

@@ -8,24 +8,28 @@ struct ChatContainerView: View {
     @State private var showSuggestions: Bool = true
     @State private var inputText: String = ""
     @StateObject private var voice = VoiceInputManager()
+    @Environment(\.horizontalSizeClass) private var hSizeClass
 
     enum Tab { case chat, calendar, mood, sounds }
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
                 content
-                // Floating mic for Wispr-style capture
-                FloatingMicButton(voice: voice, targetText: $inputText) { text in
-                    // Auto-send if desired; for now, just populate input.
-                    inputText = text
-                }
-                .padding(.trailing, 16)
-                .padding(.bottom, 90)
             }
             .toolbar { toolbar }
             .navigationTitle("Jarvis")
             .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) {
+                HStack {
+                    Spacer()
+                    FloatingMicButton(voice: voice, targetText: $inputText) { text in
+                        inputText = text
+                    }
+                    .padding(.trailing, 16)
+                }
+                .padding(.bottom, 8)
+            }
         }
         .tint(.orangeBrand)
     }
@@ -62,29 +66,68 @@ struct ChatContainerView: View {
 struct ChatCompanionView: View {
     @ObservedObject var viewModel: ChatViewModel
     @Binding var inputText: String
+    @Environment(\.horizontalSizeClass) private var hSizeClass
+    @State private var greetingText: String = ""
     @AppStorage("accountName") private var accountName: String = ""
+    @State private var profile: UserProfile = .current()
+    private let reminderEngine = ReminderEngine()
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.messages) { msg in
-                        bubble(for: msg)
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 12) {
+                if !greetingText.isEmpty {
+                    Text(greetingText)
+                        .font(.body)
+                        .padding(12)
+                        .background(Color.orangeBrand.opacity(0.1))
+                        .cornerRadius(12)
+                }
+                if viewModel.messages.count <= 1 {
+                    if let goal = profile.goals.first, !goal.isEmpty {
+                        SuggestionCard(text: "You wanted to improve \(goal). How's that going?") { accept in
+                            if accept { inputText = "I want to improve \(goal)" }
+                        }
                     }
-                    if let suggestion = proactiveSuggestion() {
-                        SuggestionCard(text: suggestion) { accept in
-                            if accept { inputText = suggestion }
+                    if let person = profile.people.first, !person.isEmpty {
+                        SuggestionCard(text: "Don't forget to call \(person) this week!") { _ in }
+                    }
+                }
+                ForEach(viewModel.messages) { msg in
+                    bubble(for: msg)
+                }
+                let basic = proactiveSuggestion()
+                if let s = basic { SuggestionCard(text: s) { accept in if accept { inputText = s } } }
+                ForEach(reminderEngine.suggestions(from: viewModel.messages, profile: profile)) { s in
+                    SuggestionCard(text: s.text) { accept in
+                        if accept {
+                            Task { try? await reminderEngine.addToCalendar(text: s.text, date: s.when) }
                         }
                     }
                 }
-                .padding()
             }
+            .frame(maxWidth: hSizeClass == .regular ? 700 : .infinity)
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .safeAreaInset(edge: .bottom) {
             inputBar
+                .frame(maxWidth: hSizeClass == .regular ? 700 : .infinity)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
         }
         .onAppear {
+            profile = .current()
+            let name = accountName.isEmpty ? "friend" : accountName
+            let greeting: String
+            switch profile.tone.lowercased() {
+            case "direct": greeting = "Hey \(name). How's it going?"
+            case "professional": greeting = "Hello \(name). How are you today?"
+            case "casual": greeting = "Hey \(name)! How's it going?"
+            default: greeting = "Hey \(name)! How are you feeling today? 😊"
+            }
             if viewModel.messages.isEmpty {
-                let name = accountName.isEmpty ? "friend" : accountName
-                viewModel.appendSystem("Hey \(name)! How are you feeling today? 😊")
+                greetingText = greeting
             }
         }
     }
@@ -94,12 +137,14 @@ struct ChatCompanionView: View {
         HStack(alignment: .top) {
             if message.role == .assistant {
                 Text(message.text)
+                    .font(.body)
                     .padding(12)
                     .background(Color.orangeBrand.opacity(0.1))
                     .cornerRadius(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 Text(message.text)
+                    .font(.body)
                     .padding(12)
                     .background(Color.orangeBrand)
                     .foregroundColor(.white)
@@ -140,6 +185,12 @@ struct ChatCompanionView: View {
         }
         if lower.contains("birthday") {
             return "It's your mom's birthday next week—want me to set a reminder?"
+        }
+        if let person = profile.people.first, lower.contains(person.lowercased()) == false {
+            return "You mentioned calling \(person) last week. Still planning to?"
+        }
+        if let goal = profile.goals.first, lower.contains(goal.lowercased()) == false {
+            return "You wanted to improve \(goal). Want a tiny step today?"
         }
         return nil
     }
@@ -237,3 +288,4 @@ struct SoundscapesView: View {
         player?.stop()
     }
 }
+

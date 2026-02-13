@@ -26,8 +26,13 @@ struct SettingsView: View {
     @AppStorage("appearance") private var appearance: String = "system" // system/light/dark
     @AppStorage("appLockEnabled") private var appLockEnabled: Bool = true
 
+    @AppStorage("hidePreviews") private var hidePreviews: Bool = false
+    @AppStorage("requireBiometricForSensitive") private var requireBiometricForSensitive: Bool = true
+
     @State private var showClearConfirm = false
     @State private var showLogoutConfirm = false
+    @State private var shareURL: URL?
+    @State private var showShare = false
 
     private let connectedSkillsKey = "connectedSkills"
 
@@ -86,6 +91,8 @@ struct SettingsView: View {
                             TextField("HH:MM", text: $quietStart)
                                 .keyboardType(.numbersAndPunctuation)
                                 .multilineTextAlignment(.trailing)
+                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
                         }
                         HStack {
                             Text("End")
@@ -93,6 +100,8 @@ struct SettingsView: View {
                             TextField("HH:MM", text: $quietEnd)
                                 .keyboardType(.numbersAndPunctuation)
                                 .multilineTextAlignment(.trailing)
+                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
                         }
                     }
                     Button("Apply Schedule") {
@@ -145,8 +154,8 @@ struct SettingsView: View {
 
             Section(header: Label("Data", systemImage: "square.and.arrow.up")) {
                 if #available(iOS 16.0, *) {
-                    ShareLink(item: exportText) {
-                        Label("Export chat history", systemImage: "square.and.arrow.up")
+                    Button("Export chat history") {
+                        UIPasteboard.general.string = exportText
                     }
                 } else {
                     Button {
@@ -171,6 +180,26 @@ struct SettingsView: View {
 
             Section(header: Label("Permissions", systemImage: "checkmark.shield.fill")) {
                 NavigationLink("Permissions") { PermissionsView() }
+            }
+            
+            Section(header: Label("Privacy & Security", systemImage: "lock.shield.fill")) {
+                Toggle("Hide message previews", isOn: $hidePreviews)
+                Toggle("Require Face ID for sensitive data", isOn: $requireBiometricForSensitive)
+                Button("Export My Data") {
+                    let data = SecurityCenter.shared.exportData()
+                    let url = FileManager.default.temporaryDirectory.appendingPathComponent("jarvis_export.json")
+                    try? data.write(to: url)
+                    shareURL = url
+                    showShare = true
+                }
+                Button(role: .destructive, "Delete My Data") {
+                    Task {
+                        let ok = await SecurityCenter.shared.authenticate(reason: "Confirm delete")
+                        if ok {
+                            SecurityCenter.shared.deleteAllData()
+                        }
+                    }
+                }
             }
 
             Section(header: Label("About", systemImage: "info.circle")) {
@@ -219,6 +248,11 @@ struct SettingsView: View {
         }
         .onAppear {
             PushNotificationManager.shared.register()
+        }
+        .sheet(isPresented: $showShare) {
+            if let shareURL {
+                ShareSheet(activityItems: [shareURL])
+            }
         }
     }
 
@@ -414,6 +448,12 @@ struct PermissionsView: View {
             pm.refreshAll()
         }
     }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController { UIActivityViewController(activityItems: activityItems, applicationActivities: nil) }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

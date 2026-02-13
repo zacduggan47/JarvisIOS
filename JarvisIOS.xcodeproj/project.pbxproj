@@ -20,6 +20,14 @@
 		111113E22F3FE6F30004D73D /* ConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E12F3FE6F30004D73D /* ConnectService.swift */; };
 		111113E42F3FE7B70004D73D /* ChatContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E32F3FE7B70004D73D /* ChatContainerView.swift */; };
 		111113E62F3FE9A40004D73D /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E52F3FE9A40004D73D /* PermissionManager.swift */; };
+		111113E82F3FEBAD0004D73D /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E72F3FEBAD0004D73D /* UserProfile.swift */; };
+		111113EA2F3FEBB50004D73D /* ReminderEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E92F3FEBB50004D73D /* ReminderEngine.swift */; };
+		111113EC2F3FEBBE0004D73D /* SecurityCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113EB2F3FEBBE0004D73D /* SecurityCenter.swift */; };
+		111113EE2F3FED7A0004D73D /* PKMTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113ED2F3FED7A0004D73D /* PKMTypes.swift */; };
+		111113F02F3FED7F0004D73D /* PKMStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113EF2F3FED7F0004D73D /* PKMStorage.swift */; };
+		111113F22F3FED830004D73D /* PKMManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113F12F3FED830004D73D /* PKMManager.swift */; };
+		111113F42F3FED860004D73D /* PKMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113F32F3FED860004D73D /* PKMService.swift */; };
+		111113F62F3FED8C0004D73D /* PKMSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113F52F3FED8C0004D73D /* PKMSyncView.swift */; };
 		4165FCA0D019264185AC9BB3 /* GatewayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B125B6F2DCED78B8976FC479 /* GatewayClient.swift */; };
 		964032AECF310749C7F1CEF7 /* JarvisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176D5F6FCBD3E47A741206DA /* JarvisApp.swift */; };
 		C4A6CC49BF4494FDBA389973 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E405CE5E43EA0E5569FCE5 /* ChatViewModel.swift */; };
@@ -40,6 +48,14 @@
 		111113E12F3FE6F30004D73D /* ConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectService.swift; sourceTree = "<group>"; };
 		111113E32F3FE7B70004D73D /* ChatContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatContainerView.swift; sourceTree = "<group>"; };
 		111113E52F3FE9A40004D73D /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		111113E72F3FEBAD0004D73D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		111113E92F3FEBB50004D73D /* ReminderEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderEngine.swift; sourceTree = "<group>"; };
+		111113EB2F3FEBBE0004D73D /* SecurityCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityCenter.swift; sourceTree = "<group>"; };
+		111113ED2F3FED7A0004D73D /* PKMTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKMTypes.swift; sourceTree = "<group>"; };
+		111113EF2F3FED7F0004D73D /* PKMStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKMStorage.swift; sourceTree = "<group>"; };
+		111113F12F3FED830004D73D /* PKMManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKMManager.swift; sourceTree = "<group>"; };
+		111113F32F3FED860004D73D /* PKMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKMService.swift; sourceTree = "<group>"; };
+		111113F52F3FED8C0004D73D /* PKMSyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKMSyncView.swift; sourceTree = "<group>"; };
 		176D5F6FCBD3E47A741206DA /* JarvisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisApp.swift; sourceTree = "<group>"; };
 		193857C0E45B70EDEF3A7FE2 /* JarvisIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JarvisIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E37ED95654E479A3C3981A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -137,6 +153,14 @@
 				111113E12F3FE6F30004D73D /* ConnectService.swift */,
 				111113E32F3FE7B70004D73D /* ChatContainerView.swift */,
 				111113E52F3FE9A40004D73D /* PermissionManager.swift */,
+				111113E72F3FEBAD0004D73D /* UserProfile.swift */,
+				111113E92F3FEBB50004D73D /* ReminderEngine.swift */,
+				111113EB2F3FEBBE0004D73D /* SecurityCenter.swift */,
+				111113ED2F3FED7A0004D73D /* PKMTypes.swift */,
+				111113EF2F3FED7F0004D73D /* PKMStorage.swift */,
+				111113F12F3FED830004D73D /* PKMManager.swift */,
+				111113F32F3FED860004D73D /* PKMService.swift */,
+				111113F52F3FED8C0004D73D /* PKMSyncView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -196,17 +220,25 @@
 				111113E62F3FE9A40004D73D /* PermissionManager.swift in Sources */,
 				111113E42F3FE7B70004D73D /* ChatContainerView.swift in Sources */,
 				111113D12F3FDC360004D73D /* SettingsView.swift in Sources */,
+				111113EE2F3FED7A0004D73D /* PKMTypes.swift in Sources */,
+				111113EA2F3FEBB50004D73D /* ReminderEngine.swift in Sources */,
+				111113EC2F3FEBBE0004D73D /* SecurityCenter.swift in Sources */,
 				EDDAC1491A02847C4CA3E9A1 /* ChatMessage.swift in Sources */,
+				111113F22F3FED830004D73D /* PKMManager.swift in Sources */,
 				111113DD2F3FE63A0004D73D /* PushNotificationManager.swift in Sources */,
 				111113DF2F3FE6440004D73D /* VoiceBridge.swift in Sources */,
+				111113F62F3FED8C0004D73D /* PKMSyncView.swift in Sources */,
 				0E155D1D73BB85A753E33677 /* ChatView.swift in Sources */,
 				C4A6CC49BF4494FDBA389973 /* ChatViewModel.swift in Sources */,
+				111113E82F3FEBAD0004D73D /* UserProfile.swift in Sources */,
+				111113F02F3FED7F0004D73D /* PKMStorage.swift in Sources */,
 				111113D72F3FE5220004D73D /* JarvisIntents.swift in Sources */,
 				111113D52F3FE51C0004D73D /* AppLock.swift in Sources */,
 				111113D32F3FE43E0004D73D /* GatewayClient+Connect.swift in Sources */,
 				111113CF2F3FD9E70004D73D /* BrandColors.swift in Sources */,
 				111113DB2F3FE5910004D73D /* ChatVoiceUI.swift in Sources */,
 				111113E22F3FE6F30004D73D /* ConnectService.swift in Sources */,
+				111113F42F3FED860004D73D /* PKMService.swift in Sources */,
 				4165FCA0D019264185AC9BB3 /* GatewayClient.swift in Sources */,
 				964032AECF310749C7F1CEF7 /* JarvisApp.swift in Sources */,
 				111113D92F3FE58C0004D73D /* VoiceInputManager.swift in Sources */,

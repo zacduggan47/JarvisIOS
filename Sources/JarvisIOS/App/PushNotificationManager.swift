@@ -34,6 +34,10 @@ final class PushNotificationManager: NSObject, ObservableObject {
         quietStart: String,
         quietEnd: String
     ) {
+        func validHM(_ s: String) -> Bool { let comps = s.split(separator: ":"); return comps.count == 2 && Int(comps[0]) != nil && Int(comps[1]) != nil }
+        let quietStart = validHM(quietStart) ? quietStart : "22:00"
+        let quietEnd = validHM(quietEnd) ? quietEnd : "07:00"
+
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         configureCategories()
 
