@@ -5,12 +5,25 @@ import UIKit
 @main
 struct JarvisApp: App {
     @AppStorage("appearance") private var appearance: String = "system"
+    @AppStorage("appLockEnabled") private var appLockEnabled: Bool = true
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var appLock = AppLock()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .tint(.orangeBrand)
                 .preferredColorScheme(colorScheme(from: appearance))
+                .overlay { if scenePhase != .active { PrivacyShieldView() } }
+                .overlay { if appLockEnabled && appLock.isLocked { LockView { appLock.unlockWithBiometrics() } } }
+                .onChange(of: scenePhase) { phase in
+                    if phase == .background {
+                        if appLockEnabled { appLock.lock() }
+                    }
+                }
+                .onAppear {
+                    if appLockEnabled { appLock.lock() }
+                }
         }
     }
 
@@ -38,7 +51,7 @@ private struct RootView: View {
                 SkillsView()
             }
             .fullScreenCover(isPresented: $showChat) {
-                ChatView(viewModel: chatViewModel)
+                ChatContainerView(viewModel: chatViewModel)
             }
             .environment(\.showOnboardingBinding, $showOnboarding)
     }
@@ -75,6 +88,15 @@ struct WelcomeView: View {
                         .shadow(color: .orangeBrand.opacity(0.4), radius: 10, x: 0, y: 5)
                 }
                 .padding(.horizontal, 40)
+
+                if !(UserDefaults.standard.string(forKey: "userId") ?? "").isEmpty {
+                    Button("Skip Onboarding") {
+                        showOnboarding?.wrappedValue = false
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.orangeBrand)
+                    .padding(.top, 8)
+                }
                 
                 Text("Made with ❤️ for you")
                     .font(.caption).foregroundColor(.gray)
@@ -101,11 +123,11 @@ struct OnboardingView: View {
     let memoryQuestions = [
         "What should I call you?",
         "What do you do for work?",
-        "What do you want to achieve?",
+        "What do you want to improve?",
         "What do you struggle with?",
         "How do you want me to message you?",
         "Any do's or don'ts?",
-        "Anything else I should know?"
+        "Who matters most to you?"
     ]
     
     let soulQuestions = [
@@ -121,11 +143,11 @@ struct OnboardingView: View {
     let whyMemory = [
         "We’ll use your name to personalize chat and files.",
         "Your role helps tailor suggestions and skills.",
-        "Goals guide priorities and morning briefs.",
+        "Improvement goals guide coaching and check-ins.",
         "Struggles help the AI support you compassionately.",
         "Messaging style lets Jarvis match your pace.",
         "Dos/don’ts set boundaries and preferences.",
-        "Anything else helps us start on the right foot."
+        "Important people help Jarvis celebrate and remind you thoughtfully."
     ]
 
     let whySoul = [
@@ -270,13 +292,15 @@ struct OnboardingView: View {
         let soul = Array(answers.suffix(7))
         let skills = UserDefaults.standard.array(forKey: "connectedSkills") as? [String] ?? []
         do {
-            let id = try await GatewayClient().connectUser(
+            let id = try await ConnectService.connectOnboarding(
                 memoryAnswers: memory,
                 soulAnswers: soul,
                 subscriptionTier: subscriptionTier,
                 connectedSkills: skills
             )
             userId = id
+            UserDefaults.standard.set(memory, forKey: "memoryAnswers")
+            UserDefaults.standard.set(soul, forKey: "soulAnswers")
             if let name = memory.first, !name.isEmpty { accountName = name }
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation { showConfetti = true }

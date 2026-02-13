@@ -10,6 +10,16 @@
 		0E155D1D73BB85A753E33677 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F425C537EB24BDBBB33F0D /* ChatView.swift */; };
 		111113CF2F3FD9E70004D73D /* BrandColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113CE2F3FD9E70004D73D /* BrandColors.swift */; };
 		111113D12F3FDC360004D73D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113D02F3FDC360004D73D /* SettingsView.swift */; };
+		111113D32F3FE43E0004D73D /* GatewayClient+Connect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113D22F3FE43E0004D73D /* GatewayClient+Connect.swift */; };
+		111113D52F3FE51C0004D73D /* AppLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113D42F3FE51C0004D73D /* AppLock.swift */; };
+		111113D72F3FE5220004D73D /* JarvisIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113D62F3FE5220004D73D /* JarvisIntents.swift */; };
+		111113D92F3FE58C0004D73D /* VoiceInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113D82F3FE58C0004D73D /* VoiceInputManager.swift */; };
+		111113DB2F3FE5910004D73D /* ChatVoiceUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113DA2F3FE5910004D73D /* ChatVoiceUI.swift */; };
+		111113DD2F3FE63A0004D73D /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113DC2F3FE63A0004D73D /* PushNotificationManager.swift */; };
+		111113DF2F3FE6440004D73D /* VoiceBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113DE2F3FE6440004D73D /* VoiceBridge.swift */; };
+		111113E22F3FE6F30004D73D /* ConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E12F3FE6F30004D73D /* ConnectService.swift */; };
+		111113E42F3FE7B70004D73D /* ChatContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E32F3FE7B70004D73D /* ChatContainerView.swift */; };
+		111113E62F3FE9A40004D73D /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113E52F3FE9A40004D73D /* PermissionManager.swift */; };
 		4165FCA0D019264185AC9BB3 /* GatewayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B125B6F2DCED78B8976FC479 /* GatewayClient.swift */; };
 		964032AECF310749C7F1CEF7 /* JarvisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176D5F6FCBD3E47A741206DA /* JarvisApp.swift */; };
 		C4A6CC49BF4494FDBA389973 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E405CE5E43EA0E5569FCE5 /* ChatViewModel.swift */; };
@@ -19,6 +29,17 @@
 /* Begin PBXFileReference section */
 		111113CE2F3FD9E70004D73D /* BrandColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandColors.swift; sourceTree = "<group>"; };
 		111113D02F3FDC360004D73D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		111113D22F3FE43E0004D73D /* GatewayClient+Connect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GatewayClient+Connect.swift"; sourceTree = "<group>"; };
+		111113D42F3FE51C0004D73D /* AppLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLock.swift; sourceTree = "<group>"; };
+		111113D62F3FE5220004D73D /* JarvisIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisIntents.swift; sourceTree = "<group>"; };
+		111113D82F3FE58C0004D73D /* VoiceInputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInputManager.swift; sourceTree = "<group>"; };
+		111113DA2F3FE5910004D73D /* ChatVoiceUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatVoiceUI.swift; sourceTree = "<group>"; };
+		111113DC2F3FE63A0004D73D /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
+		111113DE2F3FE6440004D73D /* VoiceBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceBridge.swift; sourceTree = "<group>"; };
+		111113E02F3FE64F0004D73D /* ChatVoiceIntegrationNotes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChatVoiceIntegrationNotes.txt; sourceTree = "<group>"; };
+		111113E12F3FE6F30004D73D /* ConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectService.swift; sourceTree = "<group>"; };
+		111113E32F3FE7B70004D73D /* ChatContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatContainerView.swift; sourceTree = "<group>"; };
+		111113E52F3FE9A40004D73D /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		176D5F6FCBD3E47A741206DA /* JarvisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisApp.swift; sourceTree = "<group>"; };
 		193857C0E45B70EDEF3A7FE2 /* JarvisIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JarvisIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E37ED95654E479A3C3981A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -105,6 +126,17 @@
 				176D5F6FCBD3E47A741206DA /* JarvisApp.swift */,
 				111113CE2F3FD9E70004D73D /* BrandColors.swift */,
 				111113D02F3FDC360004D73D /* SettingsView.swift */,
+				111113D22F3FE43E0004D73D /* GatewayClient+Connect.swift */,
+				111113D42F3FE51C0004D73D /* AppLock.swift */,
+				111113D62F3FE5220004D73D /* JarvisIntents.swift */,
+				111113D82F3FE58C0004D73D /* VoiceInputManager.swift */,
+				111113DA2F3FE5910004D73D /* ChatVoiceUI.swift */,
+				111113DC2F3FE63A0004D73D /* PushNotificationManager.swift */,
+				111113DE2F3FE6440004D73D /* VoiceBridge.swift */,
+				111113E02F3FE64F0004D73D /* ChatVoiceIntegrationNotes.txt */,
+				111113E12F3FE6F30004D73D /* ConnectService.swift */,
+				111113E32F3FE7B70004D73D /* ChatContainerView.swift */,
+				111113E52F3FE9A40004D73D /* PermissionManager.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -161,13 +193,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				111113E62F3FE9A40004D73D /* PermissionManager.swift in Sources */,
+				111113E42F3FE7B70004D73D /* ChatContainerView.swift in Sources */,
 				111113D12F3FDC360004D73D /* SettingsView.swift in Sources */,
 				EDDAC1491A02847C4CA3E9A1 /* ChatMessage.swift in Sources */,
+				111113DD2F3FE63A0004D73D /* PushNotificationManager.swift in Sources */,
+				111113DF2F3FE6440004D73D /* VoiceBridge.swift in Sources */,
 				0E155D1D73BB85A753E33677 /* ChatView.swift in Sources */,
 				C4A6CC49BF4494FDBA389973 /* ChatViewModel.swift in Sources */,
+				111113D72F3FE5220004D73D /* JarvisIntents.swift in Sources */,
+				111113D52F3FE51C0004D73D /* AppLock.swift in Sources */,
+				111113D32F3FE43E0004D73D /* GatewayClient+Connect.swift in Sources */,
 				111113CF2F3FD9E70004D73D /* BrandColors.swift in Sources */,
+				111113DB2F3FE5910004D73D /* ChatVoiceUI.swift in Sources */,
+				111113E22F3FE6F30004D73D /* ConnectService.swift in Sources */,
 				4165FCA0D019264185AC9BB3 /* GatewayClient.swift in Sources */,
 				964032AECF310749C7F1CEF7 /* JarvisApp.swift in Sources */,
+				111113D92F3FE58C0004D73D /* VoiceInputManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

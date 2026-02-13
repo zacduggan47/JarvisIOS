@@ -11,10 +11,20 @@ struct SettingsView: View {
     @AppStorage("gatewayURL") private var gatewayURL: String = "http://localhost:18789/v1/chat"
 
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = false
+    @AppStorage("notifyMorning") private var notifyMorning: Bool = true
+    @AppStorage("notifyAfternoon") private var notifyAfternoon: Bool = true
+    @AppStorage("notifyEvening") private var notifyEvening: Bool = true
+    @AppStorage("quietHoursEnabled") private var quietHoursEnabled: Bool = false
+    @AppStorage("quietStart") private var quietStart: String = "22:00"
+    @AppStorage("quietEnd") private var quietEnd: String = "07:00"
+
     @AppStorage("voiceEnabled") private var voiceEnabled: Bool = false
     @AppStorage("voiceName") private var voiceName: String = "Samantha" // Samantha/Daniel/Alex
+    @AppStorage("voiceLocale") private var voiceLocale: String = Locale.current.identifier
+    @AppStorage("voiceAutoSend") private var voiceAutoSend: Bool = false
 
     @AppStorage("appearance") private var appearance: String = "system" // system/light/dark
+    @AppStorage("appLockEnabled") private var appLockEnabled: Bool = true
 
     @State private var showClearConfirm = false
     @State private var showLogoutConfirm = false
@@ -64,6 +74,47 @@ struct SettingsView: View {
 
             Section(header: Label("Notifications", systemImage: "bell.fill")) {
                 Toggle("Enable push notifications", isOn: $notificationsEnabled)
+                if notificationsEnabled {
+                    Toggle("Morning (8am)", isOn: $notifyMorning)
+                    Toggle("Afternoon (12pm)", isOn: $notifyAfternoon)
+                    Toggle("Evening (6pm)", isOn: $notifyEvening)
+                    Toggle("Quiet hours", isOn: $quietHoursEnabled)
+                    if quietHoursEnabled {
+                        HStack {
+                            Text("Start")
+                            Spacer()
+                            TextField("HH:MM", text: $quietStart)
+                                .keyboardType(.numbersAndPunctuation)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        HStack {
+                            Text("End")
+                            Spacer()
+                            TextField("HH:MM", text: $quietEnd)
+                                .keyboardType(.numbersAndPunctuation)
+                                .multilineTextAlignment(.trailing)
+                        }
+                    }
+                    Button("Apply Schedule") {
+                        Task {
+                            await PushNotificationManager.shared.scheduleDailyNotifications(
+                                morning: notifyMorning,
+                                afternoon: notifyAfternoon,
+                                evening: notifyEvening,
+                                quietHoursEnabled: quietHoursEnabled,
+                                quietStart: quietStart,
+                                quietEnd: quietEnd
+                            )
+                        }
+                    }
+                    Button("Schedule 3 test notifications") {
+                        Task { await PushNotificationManager.shared.scheduleTestNotifications() }
+                    }
+                }
+            }
+
+            Section(header: Label("Security", systemImage: "lock.fill")) {
+                Toggle("Require Face ID / App Lock", isOn: $appLockEnabled)
             }
 
             Section(header: Label("Voice", systemImage: "mic.fill")) {
@@ -73,6 +124,14 @@ struct SettingsView: View {
                     Text("Daniel").tag("Daniel")
                     Text("Alex").tag("Alex")
                 }
+                Toggle("Enable voice input", isOn: $voiceEnabled)
+                Picker("Language", selection: $voiceLocale) {
+                    Text("English (US)").tag("en-US")
+                    Text("German").tag("de-DE")
+                    Text("French").tag("fr-FR")
+                    Text("Spanish").tag("es-ES")
+                }
+                Toggle("Auto-send after pause", isOn: $voiceAutoSend)
             }
 
             Section(header: Label("Appearance", systemImage: "moon.circle.fill")) {
@@ -102,6 +161,16 @@ struct SettingsView: View {
                 } label: {
                     Label("Clear Data (reset onboarding + skills)", systemImage: "trash")
                 }
+            }
+
+            Section(header: Label("Profile", systemImage: "person.text.rectangle")) {
+                NavigationLink("Edit My Profile") {
+                    MemoryEditorView()
+                }
+            }
+
+            Section(header: Label("Permissions", systemImage: "checkmark.shield.fill")) {
+                NavigationLink("Permissions") { PermissionsView() }
             }
 
             Section(header: Label("About", systemImage: "info.circle")) {
@@ -143,6 +212,14 @@ struct SettingsView: View {
         } message: {
             Text("You will be signed out and your local data will be cleared.")
         }
+        .onChange(of: notificationsEnabled) { enabled in
+            if enabled {
+                PushNotificationManager.shared.requestAuthorization()
+            }
+        }
+        .onAppear {
+            PushNotificationManager.shared.register()
+        }
     }
 
     private var exportText: String {
@@ -163,9 +240,18 @@ struct SettingsView: View {
             "subscriptionTier",
             "gatewayURL",
             "notificationsEnabled",
+            "notifyMorning",
+            "notifyAfternoon",
+            "notifyEvening",
+            "quietHoursEnabled",
+            "quietStart",
+            "quietEnd",
             "voiceEnabled",
             "voiceName",
+            "voiceLocale",
+            "voiceAutoSend",
             "appearance",
+            "appLockEnabled",
             connectedSkillsKey
         ].forEach { defaults.removeObject(forKey: $0) }
         defaults.synchronize()
@@ -179,6 +265,154 @@ struct SettingsView: View {
         ["accountName", "accountEmail", "subscriptionTier"].forEach { defaults.removeObject(forKey: $0) }
         defaults.synchronize()
         viewModel.messages.removeAll()
+    }
+}
+
+struct MemoryEditorView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    @AppStorage("onboardingAnswersData") private var onboardingAnswersData: Data = Data()
+
+    @State private var memoryAnswers: [String] = Array(repeating: "", count: 7)
+    @State private var soulAnswers: [String] = Array(repeating: "", count: 7)
+
+    private let totalAnswersCount = 14
+
+    private let memoryKey = "memoryAnswers"
+    private let soulKey = "soulAnswers"
+
+    var body: some View {
+        Form {
+            Section(header: Text("Memory")) {
+                ForEach(0..<7, id: \.self) { i in
+                    TextField("Memory Answer \(i + 1)", text: $memoryAnswers[i])
+                }
+            }
+
+            Section(header: Text("Soul")) {
+                ForEach(0..<7, id: \.self) { i in
+                    TextField("Soul Answer \(i + 1)", text: $soulAnswers[i])
+                }
+            }
+
+            Section {
+                Button("Save Changes") {
+                    saveAnswers()
+                }
+            }
+        }
+        .navigationTitle("Edit My Profile")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear(perform: loadAnswers)
+    }
+
+    private func loadAnswers() {
+        let defaults = UserDefaults.standard
+
+        if let memoryData = defaults.data(forKey: memoryKey),
+           let soulData = defaults.data(forKey: soulKey),
+           let loadedMemory = try? JSONDecoder().decode([String].self, from: memoryData),
+           let loadedSoul = try? JSONDecoder().decode([String].self, from: soulData),
+           loadedMemory.count == 7, loadedSoul.count == 7 {
+            memoryAnswers = loadedMemory
+            soulAnswers = loadedSoul
+        } else if !onboardingAnswersData.isEmpty {
+            if let combined = try? JSONDecoder().decode([String].self, from: onboardingAnswersData),
+               combined.count == totalAnswersCount {
+                memoryAnswers = Array(combined[0..<7])
+                soulAnswers = Array(combined[7..<14])
+            }
+        } else {
+            memoryAnswers = Array(repeating: "", count: 7)
+            soulAnswers = Array(repeating: "", count: 7)
+        }
+    }
+
+    private func saveAnswers() {
+        let defaults = UserDefaults.standard
+
+        // Save separately (old keys)
+        if let memoryData = try? JSONEncoder().encode(memoryAnswers) {
+            defaults.set(memoryData, forKey: memoryKey)
+        }
+        if let soulData = try? JSONEncoder().encode(soulAnswers) {
+            defaults.set(soulData, forKey: soulKey)
+        }
+
+        // Save combined data (new key)
+        let combined = memoryAnswers + soulAnswers
+        if let combinedData = try? JSONEncoder().encode(combined) {
+            defaults.set(combinedData, forKey: "onboardingAnswersData")
+        }
+
+        defaults.synchronize()
+
+        // Placeholder: Update Gateway or any other related logic here
+
+        dismiss()
+    }
+}
+
+struct PermissionsView: View {
+    @StateObject private var pm = PermissionManager.shared
+
+    private let permissionInfo: [(PermissionManager.PermissionType, String, String)] = [
+        (.locationWhenInUse, "location.fill", "Location (When In Use)"),
+        (.locationAlways, "location.circle.fill", "Location (Always)"),
+        (.calendar, "calendar", "Calendar"),
+        (.contacts, "person.2.fill", "Contacts"),
+        (.microphone, "mic.fill", "Microphone"),
+        (.speech, "waveform", "Speech Recognition"),
+        (.health, "heart.fill", "Health"),
+        (.home, "house.fill", "Home"),
+        (.mediaLibrary, "music.note.list", "Media Library"),
+        (.notifications, "bell.badge.fill", "Notifications"),
+        (.camera, "camera.fill", "Camera"),
+        (.photos, "photo.fill.on.rectangle.fill", "Photos")
+    ]
+
+    var body: some View {
+        List {
+            ForEach(permissionInfo, id: \.0) { (type, iconName, title) in
+                Section {
+                    Button {
+                        Task {
+                            await pm.request(type)
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: iconName)
+                                .foregroundColor(.orangeBrand)
+                            Text(title)
+                            Spacer()
+                            if let status = pm.statuses[type] {
+                                Text(status.rawValue.capitalized)
+                                    .font(.footnote.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(status.color.opacity(0.2))
+                                    .foregroundColor(status.color)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    if let status = pm.statuses[type], status == .denied || status == .restricted {
+                        Button("Open Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.orangeBrand)
+                    }
+                }
+            }
+        }
+        .navigationTitle("Permissions")
+        .tint(.orangeBrand)
+        .onAppear {
+            pm.refreshAll()
+        }
     }
 }
 

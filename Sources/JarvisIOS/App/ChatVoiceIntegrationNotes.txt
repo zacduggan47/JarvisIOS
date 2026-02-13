@@ -1,0 +1,23 @@
+To integrate the floating mic button with ChatView:
+
+- Instantiate VoiceInputManager and pass a binding to the text input field.
+
+Example (pseudocode):
+
+struct ChatView: View {
+    @StateObject private var voice = VoiceInputManager()
+    @State private var inputText: String = ""
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            // existing chat UI
+
+            FloatingMicButton(voice: voice, targetText: $inputText) { text in
+                // Optionally auto-send
+                // send(text)
+            }
+            .padding(.trailing, 16)
+            .padding(.bottom, 24)
+        }
+    }
+}
