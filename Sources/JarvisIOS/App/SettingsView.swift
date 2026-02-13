@@ -29,6 +29,9 @@ struct SettingsView: View {
     @AppStorage("hidePreviews") private var hidePreviews: Bool = false
     @AppStorage("requireBiometricForSensitive") private var requireBiometricForSensitive: Bool = true
 
+    @AppStorage("pkmAutoSync") private var pkmAutoSync: Bool = false
+    @AppStorage("pkmSuggestInChat") private var pkmSuggestInChat: Bool = true
+
     @State private var showClearConfirm = false
     @State private var showLogoutConfirm = false
     @State private var shareURL: URL?
@@ -199,6 +202,27 @@ struct SettingsView: View {
                             SecurityCenter.shared.deleteAllData()
                         }
                     }
+                }
+            }
+            
+            Section(header: Label("PKM Settings", systemImage: "brain.head.profile")) {
+                Toggle("Auto-sync PKM in background", isOn: $pkmAutoSync)
+                Toggle("Include in Chat suggestions", isOn: $pkmSuggestInChat)
+                HStack {
+                    Text("Last synced")
+                    Spacer()
+                    Text(PKMManager.shared.lastSync?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+                        .foregroundColor(.secondary)
+                }
+                HStack {
+                    Text("Items indexed")
+                    Spacer()
+                    Text("\(PKMManager.shared.index.items.count)")
+                        .foregroundColor(.secondary)
+                }
+                Button("Clear PKM Cache", role: .destructive) {
+                    try? PKMStorage.shared.saveIndex(.empty)
+                    PKMManager.shared.load()
                 }
             }
 

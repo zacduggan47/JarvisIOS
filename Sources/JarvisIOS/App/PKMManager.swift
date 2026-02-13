@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import AuthenticationServices
 
 @MainActor
 final class PKMManager: ObservableObject {
@@ -8,6 +9,9 @@ final class PKMManager: ObservableObject {
     @Published private(set) var index: PKMIndex = .empty
     @Published var isSyncing: Bool = false
     @Published var lastSync: Date? = nil
+    @Published var progress: Double = 0
+
+    enum PKMError: Error { case notionAuthCancelled, connectFailed(String) }
 
     private init() { load() }
 
@@ -17,30 +21,39 @@ final class PKMManager: ObservableObject {
 
     func connectAll() async {
         isSyncing = true
+        progress = 0
         defer { isSyncing = false }
-        var items: [PKMItem] = index.items
-        // Stubs: In production, call connectors below
-        items.append(contentsOf: await connectObsidian())
-        items.append(contentsOf: await connectNotion())
-        items.append(contentsOf: await connectReadwise())
-        items.append(contentsOf: await connectAppleNotes())
-        items.append(contentsOf: await connectRemember())
+        var items: [PKMItem] = []
+        let steps = 5.0
+        // Obsidian
+        items += await connectObsidian(); progress = 1/steps
+        // Notion
+        items += await connectNotion(); progress = 2/steps
+        // Readwise
+        items += await connectReadwise(); progress = 3/steps
+        // Apple Notes
+        items += await connectAppleNotes(); progress = 4/steps
+        // Remember
+        items += await connectRemember(); progress = 5/steps
         index = PKMIndex(items: Array(Set(items)), updatedAt: Date())
         try? PKMStorage.shared.saveIndex(index)
         lastSync = Date()
-        // Optionally notify gateway to sync cloud index
         try? await PKMService.syncIndex(index)
     }
 
     // MARK: - Connectors (stubs)
     func connectObsidian() async -> [PKMItem] {
-        // TODO: Present a document picker for a folder (Files) and scan filenames
-        return []
+        if ObsidianConnector.shared.hasVault() == false { return [] }
+        return await ObsidianConnector.shared.fetchItems()
     }
 
     func connectNotion() async -> [PKMItem] {
-        // TODO: OAuth and fetch pages/databases metadata
-        return []
+        if NotionConnector.shared.hasToken() == false {
+            // Requires a presentation context provider. This can be passed in from UI if needed.
+            // For now, skip interactive auth in background.
+            return []
+        }
+        return await NotionConnector.shared.fetchItems()
     }
 
     func connectReadwise() async -> [PKMItem] {
