@@ -45,6 +45,15 @@ struct ChatView: View {
                 .padding()
             }
             .navigationTitle("Jarvis")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SettingsView(viewModel: viewModel)
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                    }
+                }
+            }
             .overlay(alignment: .top) {
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)

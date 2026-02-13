@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 struct GatewayClient {
     enum GatewayError: LocalizedError {
@@ -20,10 +21,18 @@ struct GatewayClient {
 
     init(
         session: URLSession = .shared,
-        endpoint: URL? = URL(string: ProcessInfo.processInfo.environment["OPENCLAW_GATEWAY_URL"] ?? "https://api.openclaw.dev/v1/chat")
+        endpoint: URL? = nil
     ) {
         self.session = session
-        self.endpoint = endpoint ?? URL(string: "https://api.openclaw.dev/v1/chat")!
+        if let configured = UserDefaults.standard.string(forKey: "gatewayURL"),
+           let url = URL(string: configured), !configured.isEmpty {
+            self.endpoint = url
+        } else if let env = ProcessInfo.processInfo.environment["OPENCLAW_GATEWAY_URL"],
+                  let url = URL(string: env) {
+            self.endpoint = url
+        } else {
+            self.endpoint = URL(string: "http://localhost:18789/v1/chat")!
+        }
     }
 
     func send(message: String, history: [ChatMessage]) async throws -> String {
@@ -48,6 +57,52 @@ struct GatewayClient {
 
         let decoded = try JSONDecoder().decode(GatewayResponse.self, from: data)
         return decoded.reply.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // MARK: - Onboarding Connect
+    func connectUser(
+        memoryAnswers: [String],
+        soulAnswers: [String],
+        subscriptionTier: String,
+        connectedSkills: [String]
+    ) async throws -> String {
+        // Derive a /connect endpoint from the configured chat endpoint
+        let connectURL = endpoint.deletingLastPathComponent().appendingPathComponent("connect")
+        var request = URLRequest(url: connectURL)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let payload = ConnectRequest(
+            memoryAnswers: memoryAnswers,
+            soulAnswers: soulAnswers,
+            subscriptionTier: subscriptionTier,
+            connectedSkills: connectedSkills
+        )
+        request.httpBody = try JSONEncoder().encode(payload)
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw GatewayError.badResponse
+        }
+
+        let decoded = try JSONDecoder().decode(ConnectResponse.self, from: data)
+        if let userId = decoded.userId ?? decoded.id {
+            return userId
+        }
+        throw GatewayError.badResponse
+    }
+
+    private struct ConnectRequest: Encodable {
+        let memoryAnswers: [String]
+        let soulAnswers: [String]
+        let subscriptionTier: String
+        let connectedSkills: [String]
+    }
+
+    private struct ConnectResponse: Decodable {
+        let userId: String?
+        let id: String?
     }
 }
 
