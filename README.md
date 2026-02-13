@@ -1,62 +1,56 @@
 # Jarvis iOS App
 
-A personal AI assistant built with SwiftUI. Connects to OpenClaw Gateway.
+A personal AI assistant built with SwiftUI that connects to an OpenClaw Gateway backend.
 
 ## Features
+- SwiftUI chat interface with message bubbles
+- Async message sending with loading/error handling
+- Gateway client for posting conversation history and receiving replies
+- XcodeGen-powered project generation
 
-- 🎯 Personal onboarding (Memory + Soul questions)
-- 💬 Chat interface with AI
-- 🔌 WebSocket connection to Gateway
-- 🔐 Keychain token storage
-- 📧 Nylas integration (Gmail, Calendar, Contacts)
-- 🟠 Orange brand theme
+## Project Structure
+```
+Sources/JarvisIOS/
+├── App/
+│   └── JarvisApp.swift
+├── Features/Chat/
+│   ├── ChatView.swift
+│   └── ChatViewModel.swift
+├── Models/
+│   └── ChatMessage.swift
+├── Networking/
+│   └── GatewayClient.swift
+└── Resources/
+    └── Info.plist
+```
+
 
 ## Getting Started
 
 ### Prerequisites
-
-- Xcode 15+
+- Xcode 16+
 - XcodeGen (`brew install xcodegen`)
 
-### Build
+
+### Configure
+Optionally set a custom gateway URL before running:
 
 ```bash
-# Generate Xcode project
+export OPENCLAW_GATEWAY_URL="https://your-gateway.example/v1/chat"
+```
+
+If not set, the app defaults to:
+
+```text
+https://api.openclaw.dev/v1/chat
+```
+
+### Build
+```bash
 xcodegen generate
-
-# Open in Xcode
 open JarvisIOS.xcodeproj
-
-# Or build from terminal
-xcodebuild -project JarvisIOS.xcodeproj -scheme JarvisIOS -destination 'platform=iOS Simulator,name=iPhone 17' build
 ```
 
-## Project Structure
-
-```
-JarvisIOS/
-├── App/
-│   ├── JarvisApp.swift      # App entry point
-│   └── Info.plist          # App configuration
-├── Models/
-│   └── ChatMessage.swift   # Data models
-├── ViewModels/
-│   └── ChatViewModel.swift # Chat state management
-├── Views/
-│   ├── ContentView.swift  # Main views
-│   └── ChatView.swift     # Chat interface
-├── Services/
-│   └── WebSocketManager.swift
-└── project.yml            # XcodeGen config
-```
-
-## Configuration
-
-Set your Gateway URL in `ChatViewModel.swift`:
-
-```swift
-init(gatewayURL: String = "wss://your-gateway.com/ws")
-```
 
 ## License
 

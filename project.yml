@@ -1,75 +1,28 @@
 name: JarvisIOS
 options:
   bundleIdPrefix: com.jarvis
-  deploymentTarget:
-    iOS: "17.0"
-  xcodeVersion: "15.0"
-  generateEmptyDirectories: true
-
 settings:
   base:
-    SWIFT_VERSION: "5.9"
-    TARGETED_DEVICE_FAMILY: "1,2"
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
-    CODE_SIGN_IDENTITY: ""
-    CODE_SIGNING_REQUIRED: "NO"
-    CODE_SIGNING_ALLOWED: "NO"
-
+    SWIFT_VERSION: 5.10
 targets:
   JarvisIOS:
     type: application
     platform: iOS
+    deploymentTarget: "17.0"
     sources:
-      - path: App
-      - path: Models
-      - path: ViewModels
-      - path: Views
-      - path: Services
-      - path: Utils
-    settings:
-      base:
-        INFOPLIST_FILE: App/Info.plist
-        PRODUCT_BUNDLE_IDENTIFIER: com.jarvis.ios
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        GENERATE_INFOPLIST_FILE: NO
+      - path: Sources/JarvisIOS
     info:
-      path: App/Info.plist
+      path: Sources/JarvisIOS/Resources/Info.plist
       properties:
-        CFBundleName: Jarvis
         CFBundleDisplayName: Jarvis
-        CFBundleIdentifier: com.jarvis.ios
-        CFBundleVersion: "1"
-        CFBundleShortVersionString: "1.0.0"
-        CFBundlePackageType: APPL
-        CFBundleExecutable: JarvisIOS
-        UILaunchStoryboardName: ""
-        UIApplicationSceneManifest:
-          UIApplicationSupportsMultipleScenes: false
-          UISceneConfigurations: {}
+        UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        UISupportedInterfaceOrientations~ipad:
-          - UIInterfaceOrientationPortrait
-          - UIInterfaceOrientationPortraitUpsideDown
-          - UIInterfaceOrientationLandscapeLeft
-          - UIInterfaceOrientationLandscapeRight
-        UIRequiresFullScreen: false
-        UIStatusBarStyle: UIStatusBarStyleDefault
-        NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: true
-
-schemes:
-  JarvisIOS:
-    build:
-      targets:
-        JarvisIOS: all
-    run:
-      config: Debug
-    profile:
-      config: Release
-    analyze:
-      config: Debug
-    archive:
-      config: Release
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jarvis.ios
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0
+    scheme:
+      testTargets: []
