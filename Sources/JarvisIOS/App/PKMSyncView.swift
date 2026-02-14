@@ -1,10 +1,14 @@
 import SwiftUI
+import AuthenticationServices
+import UIKit
 
 struct PKMSyncView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var manager = PKMManager.shared
     @State private var showConfetti = false
     @State private var successBanner = ""
+    @State private var isAuthenticatingNotion = false
+    @State private var authError: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -29,9 +33,31 @@ struct PKMSyncView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            Button("Connect") { connect(app) }
-                                .buttonStyle(.bordered)
-                                .tint(.orangeBrand)
+                            Button("Connect") {
+                                switch app {
+                                case .notion:
+                                    isAuthenticatingNotion = true
+                                    authError = nil
+                                    Task {
+                                        do {
+                                            let presenter = WebAuthPresenter()
+                                            try await NotionConnector.shared.startOAuth(presenting: presenter)
+                                            await MainActor.run { isAuthenticatingNotion = false }
+                                        } catch {
+                                            await MainActor.run {
+                                                isAuthenticatingNotion = false
+                                                authError = (error as NSError).localizedDescription
+                                            }
+                                        }
+                                    }
+                                case .obsidian:
+                                    showFolderPicker()
+                                default:
+                                    connect(app)
+                                }
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.orangeBrand)
                         }
                     }
                     .frame(maxHeight: 360)
@@ -44,6 +70,15 @@ struct PKMSyncView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.orangeBrand)
+
+                    if isAuthenticatingNotion {
+                        ProgressView("Connecting Notion…")
+                    }
+                    if let error = authError {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                    }
 
                     if manager.isSyncing {
                         ProgressView(value: manager.progress)
@@ -106,5 +141,27 @@ struct PKMSyncView: View {
                 dismiss()
             }
         }
+    }
+
+    private func showFolderPicker() {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.folder], asCopy: false)
+        picker.allowsMultipleSelection = false
+        picker.delegate = FolderPickerDelegate { url in
+            if let url { ObsidianConnector.shared.setVault(url: url) }
+        }
+        UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
+    }
+
+    final class WebAuthPresenter: NSObject, ASWebAuthenticationPresentationContextProviding {
+        func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+            return UIApplication.shared.windows.first { $0.isKeyWindow } ?? UIWindow()
+        }
+    }
+
+    final class FolderPickerDelegate: NSObject, UIDocumentPickerDelegate {
+        let onPick: (URL?) -> Void
+        init(onPick: @escaping (URL?) -> Void) { self.onPick = onPick }
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) { onPick(urls.first) }
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { onPick(nil) }
     }
 }

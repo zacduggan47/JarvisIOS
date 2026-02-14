@@ -16,8 +16,8 @@ struct JarvisApp: App {
                 .preferredColorScheme(colorScheme(from: appearance))
                 .overlay { if scenePhase != .active { PrivacyShieldView() } }
                 .overlay { if appLockEnabled && appLock.isLocked { LockView { appLock.unlockWithBiometrics() } } }
-                .onChange(of: scenePhase) { phase in
-                    if phase == .background {
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase == .background {
                         if appLockEnabled { appLock.lock() }
                     }
                 }
@@ -122,6 +122,7 @@ struct OnboardingView: View {
     @AppStorage("subscriptionTier") private var subscriptionTier: String = "Free"
     @AppStorage("userId") private var userId: String = ""
     @AppStorage("accountName") private var accountName: String = ""
+    @State private var selectedPersonality: JarvisPersonality? = nil
 
     let memoryQuestions = [
         "What should I call you?",
@@ -169,7 +170,7 @@ struct OnboardingView: View {
                 VStack(spacing: 0) {
                     // Progress
                     HStack(spacing: 8) {
-                        ForEach(0..<14, id: \.self) { index in
+                        ForEach(0..<15, id: \.self) { index in
                             Circle()
                                 .fill(index <= currentStep ? Color.orangeBrand : Color.gray.opacity(0.3))
                                 .frame(width: 8, height: 8)
@@ -186,32 +187,59 @@ struct OnboardingView: View {
                     Spacer(minLength: 12)
                     
                     // Question
-                    let question = currentStep < 7
-                        ? memoryQuestions[currentStep]
-                        : soulQuestions[currentStep - 7]
-                    
-                    HStack(spacing: 8) {
-                        Text(question)
+                    if currentStep < 7 {
+                        let question = memoryQuestions[currentStep]
+                        HStack(spacing: 8) {
+                            Text(question)
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                            Button {
+                                showWhy = true
+                            } label: {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .foregroundColor(.orangeBrand)
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                        .id("q\(currentStep)")
+                    } else if currentStep < 14 {
+                        let question = soulQuestions[currentStep - 7]
+                        HStack(spacing: 8) {
+                            Text(question)
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                            Button {
+                                showWhy = true
+                            } label: {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .foregroundColor(.orangeBrand)
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                        .id("q\(currentStep)")
+                    } else /* currentStep == 14 */ {
+                        Text("Choose your Jarvis personality")
                             .font(.headline)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
-                        Button {
-                            showWhy = true
-                        } label: {
-                            Image(systemName: "questionmark.circle.fill")
-                                .foregroundColor(.orangeBrand)
-                        }
+                            .padding(.horizontal, 24)
+                            .id("q\(currentStep)")
                     }
-                    .padding(.horizontal, 24)
-                    .id("q\(currentStep)")
                     
                     Spacer(minLength: 12)
                     
-                    // Answer Input
-                    TextField("Your answer...", text: $answers[currentStep])
-                        .textFieldStyle(.roundedBorder)
-                        .padding(.horizontal, 24)
-                        .id("a\(currentStep)")
+                    // Answer Input or Personality picker
+                    if currentStep < 14 {
+                        TextField("Your answer...", text: $answers[currentStep])
+                            .textFieldStyle(.roundedBorder)
+                            .padding(.horizontal, 24)
+                            .id("a\(currentStep)")
+                    } else {
+                        PersonalityPickerView(selected: $selectedPersonality)
+                            .id("a\(currentStep)")
+                    }
                     
                     Spacer(minLength: 12)
                     
@@ -226,16 +254,24 @@ struct OnboardingView: View {
                         }
                         Button("Skip") {
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep = min(currentStep + 1, 13) }
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep = min(currentStep + 1, 14) }
                         }
                         .foregroundColor(.secondary)
-                        Button(currentStep < 13 ? "Next →" : "Done!") {
-                            if currentStep < 13 {
+                        Button(currentStep < 14 ? "Next →" : "Done!") {
+                            if currentStep < 14 {
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { currentStep += 1 }
                                 withAnimation { proxy.scrollTo("q\(currentStep)", anchor: .center) }
                             } else {
-                                Task { await submitOnboarding() }
+                                // currentStep == 14, final step, personality selection
+                                if let _ = selectedPersonality {
+                                    Task { await submitOnboarding() }
+                                } else {
+                                    UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+                                    withAnimation {
+                                        errorMessage = "Please select a personality"
+                                    }
+                                }
                             }
                         }
                         .fontWeight(.bold)
@@ -278,14 +314,22 @@ struct OnboardingView: View {
     }
 
     private var currentWhyText: String {
-        currentStep < 7 ? whyMemory[currentStep] : whySoul[currentStep - 7]
+        if currentStep < 7 {
+            return whyMemory[currentStep]
+        } else if currentStep < 14 {
+            return whySoul[currentStep - 7]
+        } else {
+            return ""
+        }
     }
     
     private var progressLabel: String {
         if currentStep < 7 {
             return "Memory \(currentStep + 1)/7"
-        } else {
+        } else if currentStep < 14 {
             return "Soul \((currentStep - 7) + 1)/7"
+        } else {
+            return "Personality 1/1"
         }
     }
 
@@ -306,6 +350,9 @@ struct OnboardingView: View {
             UserDefaults.standard.set(memory, forKey: "memoryAnswers")
             UserDefaults.standard.set(soul, forKey: "soulAnswers")
             if let name = memory.first, !name.isEmpty { accountName = name }
+            if let p = selectedPersonality {
+                UserDefaults.standard.set(p.rawValue, forKey: "personalityId")
+            }
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation { showConfetti = true }
             try? await Task.sleep(nanoseconds: 1_500_000_000)
@@ -636,3 +683,33 @@ extension EnvironmentValues {
     }
 }
 
+struct PersonalityPickerView: View {
+    @Binding var selected: JarvisPersonality?
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(JarvisPersonality.allCases) { p in
+                Button {
+                    selected = p
+                } label: {
+                    VStack(spacing: 8) {
+                        Text(p.emoji).font(.system(size: 36))
+                        Text(p.name).font(.headline).multilineTextAlignment(.center)
+                        Text(p.description).font(.caption).foregroundColor(.secondary).multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.orangeBrand.opacity(selected == p ? 0.15 : 0.08))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(selected == p ? Color.orangeBrand : Color.orangeBrand.opacity(0.2), lineWidth: selected == p ? 2 : 1)
+                    )
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+}

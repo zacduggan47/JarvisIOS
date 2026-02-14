@@ -185,6 +185,12 @@ struct SettingsView: View {
                 NavigationLink("Permissions") { PermissionsView() }
             }
             
+            Section(header: Label("Personality", systemImage: "person.crop.square.filled.and.at.rectangle")) {
+                NavigationLink("Change Personality") {
+                    PersonalitySettingsView()
+                }
+            }
+
             Section(header: Label("Privacy & Security", systemImage: "lock.shield.fill")) {
                 Toggle("Hide message previews", isOn: $hidePreviews)
                 Toggle("Require Face ID for sensitive data", isOn: $requireBiometricForSensitive)
@@ -478,6 +484,33 @@ struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
     func makeUIViewController(context: Context) -> UIActivityViewController { UIActivityViewController(activityItems: activityItems, applicationActivities: nil) }
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+struct PersonalitySettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("personalityId") private var personalityId: String = JarvisPersonality.jarvisAI.rawValue
+    @State private var selected: JarvisPersonality? = JarvisPersonality(rawValue: JarvisPersonality.jarvisAI.rawValue)
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Choose Your Jarvis").font(.title2.bold()).foregroundColor(.orangeBrand)
+            PersonalityPickerView(selected: Binding(get: { selected }, set: { selected = $0; if let s = $0 { personalityId = s.rawValue } }))
+            if let p = selected {
+                VStack(spacing: 8) {
+                    Text("\(p.emoji) \(p.name)").font(.headline)
+                    Text(p.examplePhrases.randomElement() ?? "").font(.subheadline).foregroundColor(.secondary)
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(12)
+            }
+            Button("Save") { dismiss() }
+                .buttonStyle(.borderedProminent)
+                .tint(.orangeBrand)
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("Personality")
+    }
 }
 
 #Preview {

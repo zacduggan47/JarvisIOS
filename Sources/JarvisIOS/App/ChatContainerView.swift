@@ -69,6 +69,7 @@ struct ChatCompanionView: View {
     @Environment(\.horizontalSizeClass) private var hSizeClass
     @State private var greetingText: String = ""
     @AppStorage("accountName") private var accountName: String = ""
+    @AppStorage("personalityId") private var personalityId: String = JarvisPersonality.jarvisAI.rawValue
     @State private var profile: UserProfile = .current()
     private let reminderEngine = ReminderEngine()
 
@@ -128,6 +129,12 @@ struct ChatCompanionView: View {
             }
             if viewModel.messages.isEmpty {
                 greetingText = greeting
+                if let persona = JarvisPersonality(rawValue: personalityId) {
+                    // Adjust greeting with example phrase and emoji
+                    if let phrase = persona.examplePhrases.randomElement() {
+                        greetingText += "\n\n\(persona.emoji) \(phrase)"
+                    }
+                }
             }
         }
     }
@@ -173,6 +180,8 @@ struct ChatCompanionView: View {
     private func send() {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        // Personality system prompt hint to gateway; adjust per your ChatViewModel API
+        // e.g., viewModel.setSystemPrompt(JarvisPersonality(rawValue: personalityId)?.systemPrompt ?? "")
         viewModel.send(text)
         inputText = ""
     }

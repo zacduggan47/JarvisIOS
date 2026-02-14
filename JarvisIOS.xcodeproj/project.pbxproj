@@ -32,6 +32,9 @@
 		111113FA2F3FF0470004D73D /* EvernoteConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113F92F3FF0470004D73D /* EvernoteConnector.swift */; };
 		111113FC2F3FF0470004D73D /* ObsidianConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113FB2F3FF0470004D73D /* ObsidianConnector.swift */; };
 		111113FE2F3FF04A0004D73D /* AppleNotesConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113FD2F3FF04A0004D73D /* AppleNotesConnector.swift */; };
+		111114002F3FF1550004D73D /* JarvisPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111113FF2F3FF1550004D73D /* JarvisPersonality.swift */; };
+		111114022F3FF25D0004D73D /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111114012F3FF25D0004D73D /* SubscriptionManager.swift */; };
+		111114042F3FF2650004D73D /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111114032F3FF2650004D73D /* SubscriptionView.swift */; };
 		4165FCA0D019264185AC9BB3 /* GatewayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B125B6F2DCED78B8976FC479 /* GatewayClient.swift */; };
 		964032AECF310749C7F1CEF7 /* JarvisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176D5F6FCBD3E47A741206DA /* JarvisApp.swift */; };
 		C4A6CC49BF4494FDBA389973 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E405CE5E43EA0E5569FCE5 /* ChatViewModel.swift */; };
@@ -64,6 +67,9 @@
 		111113F92F3FF0470004D73D /* EvernoteConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvernoteConnector.swift; sourceTree = "<group>"; };
 		111113FB2F3FF0470004D73D /* ObsidianConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianConnector.swift; sourceTree = "<group>"; };
 		111113FD2F3FF04A0004D73D /* AppleNotesConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleNotesConnector.swift; sourceTree = "<group>"; };
+		111113FF2F3FF1550004D73D /* JarvisPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisPersonality.swift; sourceTree = "<group>"; };
+		111114012F3FF25D0004D73D /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		111114032F3FF2650004D73D /* SubscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
 		176D5F6FCBD3E47A741206DA /* JarvisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisApp.swift; sourceTree = "<group>"; };
 		193857C0E45B70EDEF3A7FE2 /* JarvisIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JarvisIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E37ED95654E479A3C3981A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -173,6 +179,9 @@
 				111113F92F3FF0470004D73D /* EvernoteConnector.swift */,
 				111113FB2F3FF0470004D73D /* ObsidianConnector.swift */,
 				111113FD2F3FF04A0004D73D /* AppleNotesConnector.swift */,
+				111113FF2F3FF1550004D73D /* JarvisPersonality.swift */,
+				111114012F3FF25D0004D73D /* SubscriptionManager.swift */,
+				111114032F3FF2650004D73D /* SubscriptionView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -238,6 +247,7 @@
 				111113FA2F3FF0470004D73D /* EvernoteConnector.swift in Sources */,
 				EDDAC1491A02847C4CA3E9A1 /* ChatMessage.swift in Sources */,
 				111113F22F3FED830004D73D /* PKMManager.swift in Sources */,
+				111114022F3FF25D0004D73D /* SubscriptionManager.swift in Sources */,
 				111113DD2F3FE63A0004D73D /* PushNotificationManager.swift in Sources */,
 				111113FE2F3FF04A0004D73D /* AppleNotesConnector.swift in Sources */,
 				111113DF2F3FE6440004D73D /* VoiceBridge.swift in Sources */,
@@ -245,7 +255,9 @@
 				0E155D1D73BB85A753E33677 /* ChatView.swift in Sources */,
 				111113F82F3FF0430004D73D /* NotionConnector.swift in Sources */,
 				C4A6CC49BF4494FDBA389973 /* ChatViewModel.swift in Sources */,
+				111114042F3FF2650004D73D /* SubscriptionView.swift in Sources */,
 				111113E82F3FEBAD0004D73D /* UserProfile.swift in Sources */,
+				111114002F3FF1550004D73D /* JarvisPersonality.swift in Sources */,
 				111113F02F3FED7F0004D73D /* PKMStorage.swift in Sources */,
 				111113D72F3FE5220004D73D /* JarvisIntents.swift in Sources */,
 				111113FC2F3FF0470004D73D /* ObsidianConnector.swift in Sources */,

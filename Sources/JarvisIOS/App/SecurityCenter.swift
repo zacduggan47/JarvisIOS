@@ -1,6 +1,7 @@
 import Foundation
 import LocalAuthentication
 import SwiftUI
+import Security
 
 // Simple Keychain helper (tokens, credentials)
 final class KeychainStore {
@@ -80,3 +81,4 @@ final class SecurityCenter: ObservableObject {
         } catch { return false }
     }
 }
+

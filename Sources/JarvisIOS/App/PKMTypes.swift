@@ -26,7 +26,7 @@ enum PKMApp: String, CaseIterable, Identifiable {
     }
 }
 
-struct PKMItem: Identifiable, Codable, Equatable {
+struct PKMItem: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     let title: String
     let link: String?
@@ -50,3 +50,4 @@ struct PKMIndex: Codable, Equatable {
 
     static let empty = PKMIndex(items: [], updatedAt: .distantPast)
 }
+
